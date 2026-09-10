@@ -1,0 +1,25 @@
+{
+  "name": "小A雞蛋糕點餐工作台",
+  "short_name": "小A點餐",
+  "lang": "zh-Hant",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f7f2",
+  "theme_color": "#24594e",
+  "icons": [
+    {
+      "sizes": "192x192",
+      "purpose": "any",
+      "type": "image/png",
+      "src": "icon-192.png"
+    },
+    {
+      "sizes": "512x512",
+      "purpose": "any maskable",
+      "type": "image/png",
+      "src": "icon-512.png"
+    }
+  ]
+}

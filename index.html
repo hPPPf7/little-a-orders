@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#24594e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>小A雞蛋糕 · 點餐工作台</title>
+    <link rel="icon" href="icon.svg" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <span class="brand">小A雞蛋糕</span
+      ><button class="secondary" id="backup" aria-label="下載備份">
+        下載備份</button
+      ><span id="date" hidden></span>
+    </header>
+    <nav id="nav" aria-label="工作台分頁"></nav>
+    <main id="main"></main>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <dialog id="archive-dialog">
+      <form id="archive-form">
+        <div class="dialog-symbol">▤</div>
+        <h2>封存已完成訂單</h2>
+        <p id="archive-description"></p>
+        <label for="archive-date">封存日期</label
+        ><input type="date" id="archive-date" required />
+        <p class="muted">
+          封存後，歷史清單會清空。訂單可在「封存紀錄」中查看。
+        </p>
+        <div class="dialog-actions">
+          <button type="button" id="cancel-archive" class="secondary">
+            取消</button
+          ><button class="primary" type="submit">確認封存</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="note-dialog">
+      <h2>訂單備註</h2>
+      <p id="note-content"></p>
+      <form method="dialog"><button class="primary">關閉</button></form>
+    </dialog>
+  </body>
+</html>
