@@ -5,6 +5,11 @@
   font-size: 20px;
   --green: #24594e;
   --border: #cbd3c5;
+  --touch-edge-gap: 0px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 * {
   box-sizing: border-box;
@@ -19,8 +24,13 @@ body {
   height: 100dvh;
   display: grid;
   grid-template-rows: 60px 64px minmax(0, 1fr);
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: calc(var(--safe-top) + var(--touch-edge-gap));
+  padding-bottom: calc(var(--safe-bottom) + var(--touch-edge-gap));
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
+@media (pointer: coarse) {
+  :root { --touch-edge-gap: 8px; }
 }
 button,
 input,

@@ -11,6 +11,11 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
+import android.widget.FrameLayout;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewClientCompat;
 import java.io.ByteArrayInputStream;
@@ -24,11 +29,23 @@ public class MainActivity extends Activity {
  private static final int SAVE_BACKUP = 21;
  @Override public void onCreate(Bundle state) {
   super.onCreate(state);
+  WindowCompat.setDecorFitsSystemWindows(getWindow(),false);
+  FrameLayout container=new FrameLayout(this);
+  container.setBackgroundColor(0xfff5f6f0);
   web = new WebView(this);
   web.setBackgroundColor(0xfff5f6f0);
-  web.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets;});
-  setContentView(web);
-  web.requestApplyInsets();
+  container.addView(web,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));
+  // Inset the parent so WebView's viewport actually shrinks to the usable area.
+  // WebView padding alone does not reliably constrain a full-height HTML layout.
+  ViewCompat.setOnApplyWindowInsetsListener(container,(v,insets)->{
+   Insets safe=insets.getInsets(WindowInsetsCompat.Type.systemBars()|WindowInsetsCompat.Type.displayCutout()|WindowInsetsCompat.Type.ime());
+   v.setPadding(safe.left,safe.top,safe.right,safe.bottom);
+   return WindowInsetsCompat.CONSUMED;
+  });
+  setContentView(container);
+  WindowCompat.getInsetsController(getWindow(),container).setAppearanceLightStatusBars(true);
+  WindowCompat.getInsetsController(getWindow(),container).setAppearanceLightNavigationBars(true);
+  ViewCompat.requestApplyInsets(container);
   web.getSettings().setJavaScriptEnabled(true);
   web.getSettings().setDomStorageEnabled(true);
   web.getSettings().setAllowFileAccess(false);
