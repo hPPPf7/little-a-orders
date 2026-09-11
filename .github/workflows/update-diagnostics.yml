@@ -13,7 +13,7 @@ jobs:
           java-version: '17'
       - uses: android-actions/setup-android@v3
       - name: Download the actual published old APK
-        run: curl --fail --location --retry 3 -o old.apk https://github.com/hPPPf7/little-a-orders/releases/download/v1.0.0/little-a-orders.apk
+        run: curl --fail --location --retry 3 -o old.apk https://github.com/hPPPf7/little-a-orders/releases/download/v1.0.2/little-a-orders.apk
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

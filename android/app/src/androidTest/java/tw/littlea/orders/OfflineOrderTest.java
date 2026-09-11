@@ -23,7 +23,8 @@ public class OfflineOrderTest {
  @Test public void bundledMenuCreatesAndPersistsOrder()throws Exception{
   try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)){
    loaded(scenario);
-   assertEquals("\"v"+BuildConfig.VERSION_NAME+" 更新\"",eval(scenario,"document.querySelector('.update-button').textContent"));
+   assertEquals("\"檢查更新\"",eval(scenario,"document.querySelector('.update-button').textContent"));
+   assertEquals("\"目前版本 v"+BuildConfig.VERSION_NAME+"\"",eval(scenario,"document.querySelector('.update-button').title"));
    assertEquals("true",eval(scenario,"(()=>{document.querySelector('[data-flavor=\"0\"]').click();document.querySelector('[data-action=\"add\"]').click();document.querySelector('[data-action=\"submit\"]').click();return JSON.parse(localStorage.getItem('little-a-orders-v1')).pending[0].items[0].price===50})()"));
    scenario.recreate();loaded(scenario);
    assertEquals("1",eval(scenario,"JSON.parse(localStorage.getItem('little-a-orders-v1')).pending.length"));

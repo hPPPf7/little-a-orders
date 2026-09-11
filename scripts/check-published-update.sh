@@ -8,7 +8,7 @@ for i in $(seq 1 12); do
   adb shell uiautomator dump /sdcard/update.xml >/dev/null
   adb pull /sdcard/update.xml diagnostics/update.xml >/dev/null
   if grep -q '有新版本可更新' diagnostics/update.xml; then
-    echo 'Published v1.0.0 detected and downloaded the real newer release.'
+    echo 'Published v1.0.2 detected and downloaded the real newer release.'
     adb exec-out screencap -p > diagnostics/update.png
     exit 0
   fi

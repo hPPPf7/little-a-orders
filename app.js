@@ -361,7 +361,8 @@ $("#date").textContent = new Date().toLocaleDateString("zh-TW", {
 if (window.AndroidApp?.checkForUpdate) {
   const button = document.createElement("button");
   button.className = "secondary update-button";
-  button.textContent = "v" + window.AndroidApp.getVersionName() + " 更新";
+  button.textContent = "檢查更新";
+  button.title = "目前版本 v" + window.AndroidApp.getVersionName();
   button.setAttribute("aria-label", "檢查更新");
   button.onclick = () => window.AndroidApp.checkForUpdate();
   document.querySelector(".topbar").insertBefore(button, document.querySelector("#backup"));
