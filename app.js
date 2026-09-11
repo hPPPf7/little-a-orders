@@ -358,6 +358,14 @@ $("#date").textContent = new Date().toLocaleDateString("zh-TW", {
   day: "numeric",
   weekday: "long",
 });
+if (window.AndroidApp?.checkForUpdate) {
+  const button = document.createElement("button");
+  button.className = "secondary update-button";
+  button.textContent = "v" + window.AndroidApp.getVersionName() + " 更新";
+  button.setAttribute("aria-label", "檢查更新");
+  button.onclick = () => window.AndroidApp.checkForUpdate();
+  document.querySelector(".topbar").insertBefore(button, document.querySelector("#backup"));
+}
 render();
 if (storageBroken) toast("本機資料無法讀取，已暫停寫入以保留原始紀錄。");
 if (

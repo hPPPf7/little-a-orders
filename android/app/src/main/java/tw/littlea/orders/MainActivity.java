@@ -67,6 +67,8 @@ public class MainActivity extends Activity {
  }
  private boolean isLocal(Uri uri){return "https".equals(uri.getScheme())&&"appassets.androidplatform.net".equals(uri.getHost())&&uri.getPath()!=null&&uri.getPath().startsWith("/assets/");}
  public class BackupBridge {
+  @JavascriptInterface public String getVersionName(){return BuildConfig.VERSION_NAME;}
+  @JavascriptInterface public void checkForUpdate(){runOnUiThread(()->{if(updates!=null)updates.check(true);});}
   @JavascriptInterface public void saveBackup(String json){
    if(json==null||json.length()>20_000_000)return;
    runOnUiThread(()->{pendingBackup=json;Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json").putExtra(Intent.EXTRA_TITLE,"小A點餐備份-"+java.time.LocalDate.now()+".json");startActivityForResult(intent,SAVE_BACKUP);});
