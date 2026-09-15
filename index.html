@@ -45,7 +45,10 @@
     </dialog>
     <dialog id="amount-dialog" aria-labelledby="amount-title">
       <form id="amount-form">
-        <h2 id="amount-title">編輯收款金額</h2>
+        <div class="amount-dialog-header">
+          <h2 id="amount-title">編輯收款金額</h2>
+          <button type="button" id="cancel-amount" class="dialog-close" aria-label="關閉金額編輯">×</button>
+        </div>
         <p id="amount-original"></p>
         <label for="actual-amount">實際收款金額（元）</label>
         <input
@@ -62,9 +65,6 @@
         <div class="dialog-actions">
           <button type="button" id="reset-amount" class="secondary">
             恢復原價
-          </button>
-          <button type="button" id="cancel-amount" class="secondary">
-            取消
           </button>
           <button type="submit" class="primary">儲存金額</button>
         </div>

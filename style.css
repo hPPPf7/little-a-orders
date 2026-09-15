@@ -525,6 +525,22 @@ input::placeholder {
 #amount-form h2 {
   font-size: 23px;
 }
+.amount-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.dialog-close {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 36px;
+  line-height: 1;
+}
 #amount-form p,
 #amount-form label,
 #amount-form .dialog-actions {

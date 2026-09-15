@@ -1,5 +1,5 @@
 // Increase for every web release. Active clients continue using one coherent version.
-const CACHE = "little-a-1.0.5";
+const CACHE = "little-a-1.0.6";
 const FILES = [
   "./",
   "./index.html",
