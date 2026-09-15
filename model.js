@@ -44,6 +44,18 @@ export function price(names) {
   return names.includes("原味") ? (names.length === 1 ? 50 : 55) : 60;
 }
 export const total = (items) => items.reduce((s, i) => s + i.price * i.qty, 0);
+export const validAmount = (amount) =>
+  Number.isInteger(amount) && amount >= 0 && amount <= 999999;
+export const orderTotal = (order) => order.actualAmount ?? total(order.items);
+export function setOrderAmount(state, id, amount) {
+  const order = state.pending.find((o) => o.id === id);
+  if (!order) throw Error("訂單已完成或已更新，無法修改金額");
+  if (amount !== null && !validAmount(amount))
+    throw Error("請輸入 0–999999 的整數金額");
+  if (amount === null || amount === total(order.items))
+    delete order.actualAmount;
+  else order.actualAmount = amount;
+}
 export function addItem(state, names, qty, split) {
   if (!Number.isInteger(qty) || qty < 1 || qty > 99)
     throw Error("份數須為 1–99");

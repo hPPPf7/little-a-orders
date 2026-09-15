@@ -1,4 +1,4 @@
-import { flavors, payments, price, emptyState } from "./model.js";
+import { flavors, payments, price, emptyState, validAmount } from "./model.js";
 export const STORAGE_KEY = "little-a-orders-v1";
 const validId = (v) => typeof v === "string" && /^[a-zA-Z0-9-]{1,80}$/.test(v);
 const stamp = (v) => typeof v === "string" && Number.isFinite(Date.parse(v));
@@ -60,6 +60,7 @@ export function validateState(s) {
       o.note.length > 100 ||
       !(o.payment === null || payments.includes(o.payment)) ||
       typeof o.served !== "boolean" ||
+      (o.actualAmount !== undefined && !validAmount(o.actualAmount)) ||
       (done
         ? !(o.payment && o.served && stamp(o.completedAt))
         : !!(o.payment && o.served))

@@ -30,7 +30,9 @@ body {
   padding-right: var(--safe-right);
 }
 @media (pointer: coarse) {
-  :root { --touch-edge-gap: 8px; }
+  :root {
+    --touch-edge-gap: 8px;
+  }
 }
 button,
 input,
@@ -73,12 +75,24 @@ select:focus-visible {
   font-size: 25px;
   font-weight: 700;
 }
-.update-button { margin-left: auto; margin-right: 8px; }
-.topbar:has(.update-button) { gap: 6px; }
+.update-button {
+  margin-left: auto;
+  margin-right: 8px;
+}
+.topbar:has(.update-button) {
+  gap: 6px;
+}
 @media (max-width: 760px) {
-  .topbar:has(.update-button) .brand { font-size: 20px; }
-  .topbar:has(.update-button) button { font-size: 16px; padding: 6px; }
-  .topbar .update-button { margin-right: 0; }
+  .topbar:has(.update-button) .brand {
+    font-size: 20px;
+  }
+  .topbar:has(.update-button) button {
+    font-size: 16px;
+    padding: 6px;
+  }
+  .topbar .update-button {
+    margin-right: 0;
+  }
 }
 .topbar button {
   font-size: 18px;
@@ -477,6 +491,52 @@ input::placeholder {
 }
 .order-total strong {
   font-size: 29px;
+}
+.order-amount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.edit-amount {
+  min-height: 44px;
+  padding: 4px 8px;
+  font-size: 18px;
+}
+.original-amount {
+  display: block;
+  font-size: 16px;
+  color: #53624f;
+}
+#amount-error {
+  color: #9f2525;
+  font-size: 17px;
+  margin: 8px 0;
+}
+#amount-error:empty {
+  display: none;
+}
+#amount-dialog {
+  padding: 18px;
+}
+#amount-form {
+  display: grid;
+  gap: 10px;
+}
+#amount-form h2 {
+  font-size: 23px;
+}
+#amount-form p,
+#amount-form label,
+#amount-form .dialog-actions {
+  margin: 0;
+}
+#amount-form .dialog-actions {
+  gap: 8px;
+  justify-content: space-between;
+}
+#amount-form .dialog-actions button {
+  padding: 8px;
+  font-size: 18px;
 }
 .payment-heading {
   font-size: 19px;

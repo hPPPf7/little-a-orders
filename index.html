@@ -43,6 +43,33 @@
         </div>
       </form>
     </dialog>
+    <dialog id="amount-dialog" aria-labelledby="amount-title">
+      <form id="amount-form">
+        <h2 id="amount-title">編輯收款金額</h2>
+        <p id="amount-original"></p>
+        <label for="actual-amount">實際收款金額（元）</label>
+        <input
+          id="actual-amount"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]+"
+          maxlength="6"
+          required
+          autocomplete="off"
+          aria-describedby="amount-error"
+        />
+        <p id="amount-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button type="button" id="reset-amount" class="secondary">
+            恢復原價
+          </button>
+          <button type="button" id="cancel-amount" class="secondary">
+            取消
+          </button>
+          <button type="submit" class="primary">儲存金額</button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="note-dialog">
       <h2>訂單備註</h2>
       <p id="note-content"></p>

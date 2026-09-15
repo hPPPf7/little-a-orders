@@ -26,8 +26,10 @@ public class OfflineOrderTest {
    assertEquals("\"檢查更新\"",eval(scenario,"document.querySelector('.update-button').textContent"));
    assertEquals("\"目前版本 v"+BuildConfig.VERSION_NAME+"\"",eval(scenario,"document.querySelector('.update-button').title"));
    assertEquals("true",eval(scenario,"(()=>{document.querySelector('[data-flavor=\"0\"]').click();document.querySelector('[data-action=\"add\"]').click();document.querySelector('[data-action=\"submit\"]').click();return JSON.parse(localStorage.getItem('little-a-orders-v1')).pending[0].items[0].price===50})()"));
+   assertEquals("true",eval(scenario,"(()=>{document.querySelector('[data-tab=\"pending\"]').click();document.querySelector('[data-edit-amount]').click();document.querySelector('#actual-amount').value='25';document.querySelector('#amount-form').requestSubmit();return JSON.parse(localStorage.getItem('little-a-orders-v1')).pending[0].actualAmount===25})()"));
    scenario.recreate();loaded(scenario);
    assertEquals("1",eval(scenario,"JSON.parse(localStorage.getItem('little-a-orders-v1')).pending.length"));
+   assertEquals("25",eval(scenario,"JSON.parse(localStorage.getItem('little-a-orders-v1')).pending[0].actualAmount"));
   }
  }
  @Test public void viewportExcludesSystemBarsCutoutAndKeyboard()throws Exception{

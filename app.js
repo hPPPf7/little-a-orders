@@ -4,6 +4,8 @@ import {
   emptyState,
   price,
   total,
+  orderTotal,
+  setOrderAmount,
   addItem,
   submitOrder,
   updateOrder,
@@ -19,6 +21,7 @@ let state = emptyState(),
   split = 3,
   note = "",
   archiveId = null,
+  amountOrderId = null,
   toastTimer,
   storageBroken = false;
 try {
@@ -167,7 +170,7 @@ function orderView() {
 function orderCard(o, done = false) {
   const key = "lines-" + o.id,
     items = slicePage(o.items, key, sizes.lines);
-  return `<article class="order-card"><div class="order-card-head"><strong>${number(o)}</strong><span>${time(o.createdAt)}</span>${o.note ? `<button class="order-note" data-note="${o.id}">備註</button>` : ""}<span class="status-pill">${done ? "已完成" : o.served ? "待付款" : o.payment ? "待出餐" : "製作中"}</span></div><div class="order-lines">${items.map((i) => `<div class="order-line"><div><b>${i.names.map(esc).join(" ＋ ")}</b><span>${i.counts.join(" ＋ ")} 顆</span></div><div><span>× ${i.qty} 份</span><strong>${money(i.price * i.qty)}</strong></div></div>`).join("")}</div><div class="page-slot">${pager(o.items, key, sizes.lines)}</div><div class="order-total"><span>${o.items.reduce((s, i) => s + i.qty, 0)} 份</span><strong>${money(total(o.items))}</strong></div>${done ? `<div class="completed-info"><span>✓ ${o.payment}</span><span>${time(o.completedAt)}</span></div>` : `<div class="payment-options">${payments.map((p, i) => `<button class="${o.payment === p ? "paid" : ""}" data-payment="${i}" data-order="${o.id}" aria-pressed="${o.payment === p}">${p}</button>`).join("")}</div><button class="serve ${o.served ? "served" : ""}" data-serve="${o.id}" aria-pressed="${o.served}">${o.served ? "✓ 已出餐" : "標記已出餐"}</button>`}</article>`;
+  return `<article class="order-card"><div class="order-card-head"><strong>${number(o)}</strong><span>${time(o.createdAt)}</span>${o.note ? `<button class="order-note" data-note="${o.id}">備註</button>` : ""}<span class="status-pill">${done ? "已完成" : o.served ? "待付款" : o.payment ? "待出餐" : "製作中"}</span></div><div class="order-lines">${items.map((i) => `<div class="order-line"><div><b>${i.names.map(esc).join(" ＋ ")}</b><span>${i.counts.join(" ＋ ")} 顆</span></div><div><span>× ${i.qty} 份</span><strong>${money(i.price * i.qty)}</strong></div></div>`).join("")}</div><div class="page-slot">${pager(o.items, key, sizes.lines)}</div><div class="order-total"><span>${o.items.reduce((s, i) => s + i.qty, 0)} 份${o.actualAmount !== undefined ? `<small class="original-amount">原價 ${money(total(o.items))}</small>` : ""}</span><div class="order-amount"><strong>${money(orderTotal(o))}</strong>${!done ? `<button class="edit-amount" data-edit-amount="${o.id}" aria-label="編輯 ${number(o)} 金額">編輯</button>` : ""}</div></div>${done ? `<div class="completed-info"><span>✓ ${o.payment}</span><span>${time(o.completedAt)}</span></div>` : `<div class="payment-options">${payments.map((p, i) => `<button class="${o.payment === p ? "paid" : ""}" data-payment="${i}" data-order="${o.id}" aria-pressed="${o.payment === p}">${p}</button>`).join("")}</div><button class="serve ${o.served ? "served" : ""}" data-serve="${o.id}" aria-pressed="${o.served}">${o.served ? "✓ 已出餐" : "標記已出餐"}</button>`}</article>`;
 }
 function ordersView(orders, key, done) {
   const slice = slicePage(orders, key, sizes.orders);
@@ -177,7 +180,7 @@ function pendingView() {
   return `${heading("待出餐", "", `<span>${state.pending.length} 筆</span>`)}${ordersView(state.pending, "pending", false)}`;
 }
 function stats(orders) {
-  return `<div class="stats"><div class="stat-main"><span>總金額 · ${orders.length} 筆</span><strong>${money(orders.reduce((s, o) => s + total(o.items), 0))}</strong></div>${payments.map((p) => `<div><span>${p}</span><strong>${money(orders.filter((o) => o.payment === p).reduce((s, o) => s + total(o.items), 0))}</strong></div>`).join("")}</div>`;
+  return `<div class="stats"><div class="stat-main"><span>總金額 · ${orders.length} 筆</span><strong>${money(orders.reduce((s, o) => s + orderTotal(o), 0))}</strong></div>${payments.map((p) => `<div><span>${p}</span><strong>${money(orders.filter((o) => o.payment === p).reduce((s, o) => s + orderTotal(o), 0))}</strong></div>`).join("")}</div>`;
 }
 function historyView() {
   return `${heading("歷史訂單", "", `<button class="primary" data-action="archive" ${state.history.length ? "" : "disabled"}>封存紀錄</button>`)}${stats(state.history)}${ordersView([...state.history].reverse(), "history", true)}`;
@@ -187,7 +190,7 @@ function archivesView() {
   if (batch)
     return `${heading(batch.date, "", `<button class="secondary" data-action="back">返回封存清單</button>`)}${stats(batch.orders)}${ordersView([...batch.orders].reverse(), "batch-" + batch.id, true)}`;
   const batches = slicePage(state.archives, "archives", sizes.archives);
-  return `${heading("封存紀錄")}<div class="archive-list">${batches.length ? batches.map((a) => `<button class="archive-row" data-archive="${a.id}"><strong>${a.date}</strong><span>${a.orders.length} 筆</span><b>${money(a.orders.reduce((s, o) => s + total(o.items), 0))}</b><span>›</span></button>`).join("") : empty("尚無封存紀錄")}</div><div class="page-slot">${pager(state.archives, "archives", sizes.archives)}</div>`;
+  return `${heading("封存紀錄")}<div class="archive-list">${batches.length ? batches.map((a) => `<button class="archive-row" data-archive="${a.id}"><strong>${a.date}</strong><span>${a.orders.length} 筆</span><b>${money(a.orders.reduce((s, o) => s + orderTotal(o), 0))}</b><span>›</span></button>`).join("") : empty("尚無封存紀錄")}</div><div class="page-slot">${pager(state.archives, "archives", sizes.archives)}</div>`;
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitPages));
 
@@ -195,6 +198,19 @@ document.addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
   const d = b.dataset;
+  if (d.editAmount) {
+    const order = state.pending.find((o) => o.id === d.editAmount);
+    if (!order) return;
+    amountOrderId = order.id;
+    $("#amount-title").textContent = `${number(order)} 編輯收款金額`;
+    $("#amount-original").textContent = `原價 ${money(total(order.items))}`;
+    $("#actual-amount").value = orderTotal(order);
+    $("#amount-error").textContent = "";
+    $("#amount-dialog").showModal();
+    $("#actual-amount").focus();
+    $("#actual-amount").select();
+    return;
+  }
   if (d.page) {
     pages[d.page] = (pages[d.page] || 0) + Number(d.step);
     render();
@@ -299,7 +315,7 @@ document.addEventListener("click", (e) => {
     case "archive":
       $("#archive-date").value = day();
       $("#archive-description").textContent =
-        `共 ${state.history.length} 筆，總金額 ${money(state.history.reduce((s, o) => s + total(o.items), 0))}。`;
+        `共 ${state.history.length} 筆，總金額 ${money(state.history.reduce((s, o) => s + orderTotal(o), 0))}。`;
       $("#archive-dialog").showModal();
       break;
     case "back":
@@ -315,6 +331,25 @@ document.addEventListener("change", (e) => {
   if (e.target.id === "split") split = Number(e.target.value);
 });
 $("#cancel-archive").onclick = () => $("#archive-dialog").close();
+$("#cancel-amount").onclick = () => $("#amount-dialog").close();
+function saveAmount(amount) {
+  if (mutate((s) => setOrderAmount(s, amountOrderId, amount))) {
+    $("#amount-dialog").close();
+    toast(amount === null ? "已恢復原價" : "收款金額已更新");
+  } else {
+    $("#amount-error").textContent = "無法儲存，請關閉視窗確認訂單狀態後再試。";
+  }
+}
+$("#reset-amount").onclick = () => saveAmount(null);
+$("#amount-form").onsubmit = (e) => {
+  e.preventDefault();
+  const value = $("#actual-amount").value.trim();
+  if (!/^\d{1,6}$/.test(value)) {
+    $("#amount-error").textContent = "請輸入 0–999999 的整數金額";
+    return;
+  }
+  saveAmount(Number(value));
+};
 $("#archive-form").onsubmit = (e) => {
   e.preventDefault();
   if (mutate((s) => archive(s, $("#archive-date").value))) {
@@ -365,7 +400,9 @@ if (window.AndroidApp?.checkForUpdate) {
   button.title = "目前版本 v" + window.AndroidApp.getVersionName();
   button.setAttribute("aria-label", "檢查更新");
   button.onclick = () => window.AndroidApp.checkForUpdate();
-  document.querySelector(".topbar").insertBefore(button, document.querySelector("#backup"));
+  document
+    .querySelector(".topbar")
+    .insertBefore(button, document.querySelector("#backup"));
 }
 render();
 if (storageBroken) toast("本機資料無法讀取，已暫停寫入以保留原始紀錄。");
