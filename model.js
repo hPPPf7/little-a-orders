@@ -47,14 +47,20 @@ export const total = (items) => items.reduce((s, i) => s + i.price * i.qty, 0);
 export const validAmount = (amount) =>
   Number.isInteger(amount) && amount >= 0 && amount <= 999999;
 export const orderTotal = (order) => order.actualAmount ?? total(order.items);
-export function setOrderAmount(state, id, amount) {
-  const order = state.pending.find((o) => o.id === id);
-  if (!order) throw Error("訂單已完成或已更新，無法修改金額");
+export function setOrderAmount(state, id, amount, scope = "pending") {
+  if (!["pending", "history"].includes(scope)) throw Error("無效訂單類型");
+  const order = state[scope].find((o) => o.id === id);
+  if (!order) throw Error("訂單已移動或已刪除，無法修改金額");
   if (amount !== null && !validAmount(amount))
     throw Error("請輸入 0–999999 的整數金額");
   if (amount === null || amount === total(order.items))
     delete order.actualAmount;
   else order.actualAmount = amount;
+}
+export function deleteHistoryOrder(state, id) {
+  const index = state.history.findIndex((o) => o.id === id);
+  if (index < 0) throw Error("訂單已移動或已刪除");
+  state.history.splice(index, 1);
 }
 export function addItem(state, names, qty, split) {
   if (!Number.isInteger(qty) || qty < 1 || qty > 99)

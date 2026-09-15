@@ -47,9 +47,19 @@
       <form id="amount-form">
         <div class="amount-dialog-header">
           <h2 id="amount-title">編輯收款金額</h2>
-          <button type="button" id="cancel-amount" class="dialog-close" aria-label="關閉金額編輯">×</button>
+          <button
+            type="button"
+            id="cancel-amount"
+            class="dialog-close"
+            aria-label="關閉金額編輯"
+          >
+            ×
+          </button>
         </div>
         <p id="amount-original"></p>
+        <p id="amount-warning" hidden>
+          這是已完成的訂單，修改金額會影響歷史總額。
+        </p>
         <label for="actual-amount">實際收款金額（元）</label>
         <input
           id="actual-amount"
@@ -69,6 +79,24 @@
           <button type="submit" class="primary">儲存金額</button>
         </div>
       </form>
+    </dialog>
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+      <div class="amount-dialog-header">
+        <h2 id="confirm-title">確認操作</h2>
+        <button
+          type="button"
+          id="cancel-confirm"
+          class="dialog-close"
+          aria-label="關閉確認視窗"
+          autofocus
+        >
+          ×
+        </button>
+      </div>
+      <p id="confirm-description"></p>
+      <div class="dialog-actions">
+        <button type="button" id="confirm-action" class="primary">確認</button>
+      </div>
     </dialog>
     <dialog id="note-dialog">
       <h2>訂單備註</h2>

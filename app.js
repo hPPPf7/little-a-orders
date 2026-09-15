@@ -6,6 +6,7 @@ import {
   total,
   orderTotal,
   setOrderAmount,
+  deleteHistoryOrder,
   addItem,
   submitOrder,
   updateOrder,
@@ -22,6 +23,8 @@ let state = emptyState(),
   note = "",
   archiveId = null,
   amountOrderId = null,
+  amountScope = "pending",
+  confirmAction = null,
   toastTimer,
   storageBroken = false;
 try {
@@ -170,7 +173,7 @@ function orderView() {
 function orderCard(o, done = false) {
   const key = "lines-" + o.id,
     items = slicePage(o.items, key, sizes.lines);
-  return `<article class="order-card"><div class="order-card-head"><strong>${number(o)}</strong><span>${time(o.createdAt)}</span>${o.note ? `<button class="order-note" data-note="${o.id}">備註</button>` : ""}<span class="status-pill">${done ? "已完成" : o.served ? "待付款" : o.payment ? "待出餐" : "製作中"}</span></div><div class="order-lines">${items.map((i) => `<div class="order-line"><div><b>${i.names.map(esc).join(" ＋ ")}</b><span>${i.counts.join(" ＋ ")} 顆</span></div><div><span>× ${i.qty} 份</span><strong>${money(i.price * i.qty)}</strong></div></div>`).join("")}</div><div class="page-slot">${pager(o.items, key, sizes.lines)}</div><div class="order-total"><span>${o.items.reduce((s, i) => s + i.qty, 0)} 份${o.actualAmount !== undefined ? `<small class="original-amount">原價 ${money(total(o.items))}</small>` : ""}</span><div class="order-amount"><strong>${money(orderTotal(o))}</strong>${!done ? `<button class="edit-amount" data-edit-amount="${o.id}" aria-label="編輯 ${number(o)} 金額">編輯</button>` : ""}</div></div>${done ? `<div class="completed-info"><span>✓ ${o.payment}</span><span>${time(o.completedAt)}</span></div>` : `<div class="payment-options">${payments.map((p, i) => `<button class="${o.payment === p ? "paid" : ""}" data-payment="${i}" data-order="${o.id}" aria-pressed="${o.payment === p}">${p}</button>`).join("")}</div><button class="serve ${o.served ? "served" : ""}" data-serve="${o.id}" aria-pressed="${o.served}">${o.served ? "✓ 已出餐" : "標記已出餐"}</button>`}</article>`;
+  return `<article class="order-card"><div class="order-card-head"><strong>${number(o)}</strong><span>${time(o.createdAt)}</span>${o.note ? `<button class="order-note" data-note="${o.id}">備註</button>` : ""}<span class="status-pill">${done ? "已完成" : o.served ? "待付款" : o.payment ? "待出餐" : "製作中"}</span></div><div class="order-lines">${items.map((i) => `<div class="order-line"><div><b>${i.names.map(esc).join(" ＋ ")}</b><span>${i.counts.join(" ＋ ")} 顆</span></div><div><span>× ${i.qty} 份</span><strong>${money(i.price * i.qty)}</strong></div></div>`).join("")}</div>${o.items.length > 1 ? `<div class="page-slot">${pager(o.items, key, sizes.lines)}</div>` : ""}<div class="order-total"><span>${o.items.reduce((s, i) => s + i.qty, 0)} 份${o.actualAmount !== undefined ? `<small class="original-amount">原價 ${money(total(o.items))}</small>` : ""}</span><div class="order-amount"><strong>${money(orderTotal(o))}</strong>${!done || tab === "history" ? `<button class="edit-amount" data-edit-amount="${o.id}" aria-label="編輯 ${number(o)} 金額">編輯</button>` : ""}</div></div>${done ? `<div class="completed-info"><span>✓ ${o.payment}</span><span>${time(o.completedAt)}</span>${tab === "history" ? `<button class="history-delete" data-delete-history="${o.id}">刪除</button>` : ""}</div>` : `<div class="payment-options">${payments.map((p, i) => `<button class="${o.payment === p ? "paid" : ""}" data-payment="${i}" data-order="${o.id}" aria-pressed="${o.payment === p}">${p}</button>`).join("")}</div><button class="serve ${o.served ? "served" : ""}" data-serve="${o.id}" aria-pressed="${o.served}">${o.served ? "✓ 已出餐" : "標記已出餐"}</button>`}</article>`;
 }
 function ordersView(orders, key, done) {
   const slice = slicePage(orders, key, sizes.orders);
@@ -198,10 +201,26 @@ document.addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
   const d = b.dataset;
+  if (d.deleteHistory) {
+    const order = state.history.find((o) => o.id === d.deleteHistory);
+    if (!order) return;
+    confirmOperation(
+      "刪除歷史訂單？",
+      `${number(order)}，實收 ${money(orderTotal(order))}。刪除後無法復原，歷史總額也會扣除此筆金額。`,
+      "確認刪除",
+      () => {
+        if (mutate((s) => deleteHistoryOrder(s, order.id)))
+          toast("歷史訂單已刪除");
+      },
+    );
+    return;
+  }
   if (d.editAmount) {
-    const order = state.pending.find((o) => o.id === d.editAmount);
+    amountScope = tab === "history" ? "history" : "pending";
+    const order = state[amountScope].find((o) => o.id === d.editAmount);
     if (!order) return;
     amountOrderId = order.id;
+    $("#amount-warning").hidden = amountScope !== "history";
     $("#amount-title").textContent = `${number(order)} 編輯收款金額`;
     $("#amount-original").textContent = `原價 ${money(total(order.items))}`;
     $("#actual-amount").value = orderTotal(order);
@@ -332,8 +351,37 @@ document.addEventListener("change", (e) => {
 });
 $("#cancel-archive").onclick = () => $("#archive-dialog").close();
 $("#cancel-amount").onclick = () => $("#amount-dialog").close();
-function saveAmount(amount) {
-  if (mutate((s) => setOrderAmount(s, amountOrderId, amount))) {
+function confirmOperation(title, description, label, action) {
+  $("#confirm-title").textContent = title;
+  $("#confirm-description").textContent = description;
+  $("#confirm-action").textContent = label;
+  confirmAction = action;
+  $("#confirm-dialog").showModal();
+  $("#cancel-confirm").focus();
+}
+$("#cancel-confirm").onclick = () => $("#confirm-dialog").close();
+$("#confirm-dialog").addEventListener("close", () => {
+  confirmAction = null;
+});
+$("#confirm-action").onclick = () => {
+  const action = confirmAction;
+  confirmAction = null;
+  $("#confirm-dialog").close();
+  action?.();
+};
+function saveAmount(amount, confirmed = false) {
+  if (amountScope === "history" && !confirmed) {
+    const order = state.history.find((o) => o.id === amountOrderId);
+    if (!order) return;
+    confirmOperation(
+      "修改歷史金額？",
+      `${number(order)}：${money(orderTotal(order))} → ${money(amount ?? total(order.items))}。這會更新歷史總額，確定儲存？`,
+      "確認修改",
+      () => saveAmount(amount, true),
+    );
+    return;
+  }
+  if (mutate((s) => setOrderAmount(s, amountOrderId, amount, amountScope))) {
     $("#amount-dialog").close();
     toast(amount === null ? "已恢復原價" : "收款金額已更新");
   } else {

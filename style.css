@@ -592,11 +592,24 @@ input::placeholder {
 }
 .completed-info {
   display: flex;
+  align-items: center;
+  gap: 8px;
   justify-content: space-between;
   padding: 8px 0;
   border-top: 1px solid var(--border);
   font-size: 19px;
   flex-shrink: 0;
+}
+.history-delete {
+  color: #9f2525;
+  background: #fffefa;
+  padding: 8px 12px;
+  min-height: 44px;
+  font-size: 18px;
+}
+#amount-warning {
+  color: #9f2525;
+  font-size: 18px;
 }
 .stats {
   display: grid;
