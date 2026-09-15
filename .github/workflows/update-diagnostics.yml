@@ -12,6 +12,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
       - name: Download the actual published old APK
         run: curl --fail --location --retry 3 -o old.apk https://github.com/hPPPf7/little-a-orders/releases/download/v1.0.2/little-a-orders.apk
       - name: Enable emulator acceleration
